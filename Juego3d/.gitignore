@@ -1,0 +1,70 @@
+# ======================================
+# Unity 3D .gitignore
+# ======================================
+
+# --- Archivos generados automáticamente ---
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+Recordings/
+sysinfo.txt
+
+# --- Cache y datos de compilación ---
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.VC.opendb
+
+# --- Configuración local de IDEs ---
+.vs/
+.vscode/
+.idea/
+
+# --- Archivos del sistema operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Builds exportadas ---
+*.apk
+*.aab
+*.xcodeproj
+*.xcworkspace
+*.ipa
+*.exe
+*.dll
+*.app
+*.msi
+
+# --- Backup de Unity ---
+*.unitypackage
+*.meta~
+*.bak
+*.old
+*.orig
+
+# --- Archivos de colaboración (Unity Collaborate, Plastic SCM, etc) ---
+.plastic/
+.collabignore
+.collab/
+.vsconfig
+
+# --- Archivos opcionales ---
+# Si usas paquetes externos que se pueden reinstalar
+Packages/com.unity.package-manager/
