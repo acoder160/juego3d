@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 59573b088aaea0442bf29e0a0e9d1339, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: a5fc7e07ab67a634689ba40c6896d4b5, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -969,13 +969,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d63996837bbea948a18cea14addaba5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skyboxNight: {fileID: 0}
-  skyboxSunrise: {fileID: 0}
-  skyboxDay: {fileID: 0}
-  skyboxSunset: {fileID: 0}
+  skyboxNight: {fileID: 2800000, guid: 323f1ea1bce78fe4c90b2286fa1997e2, type: 3}
+  skyboxSunrise: {fileID: 2800000, guid: c15e36d3819e8d14ab21ab119e3fd4a7, type: 3}
+  skyboxDay: {fileID: 2800000, guid: 97c83ef8555216848ba4f98a7496a917, type: 3}
+  skyboxSunset: {fileID: 2800000, guid: 846cce7d90ad21b4b80fcb937193081e, type: 3}
   graddientNightToSunrise:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 1}
+    key0: {r: 0.40494832, g: 0.47836128, b: 0.735849, a: 1}
     key1: {r: 1, g: 1, b: 1, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
@@ -1005,7 +1005,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   graddientSunriseToDay:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 1}
+    key0: {r: 0.8238993, g: 0.78320885, b: 0.6140381, a: 1}
     key1: {r: 1, g: 1, b: 1, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
@@ -1035,7 +1035,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   graddientDayToSunset:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 1}
+    key0: {r: 0.9748427, g: 0.7205059, b: 0.33414403, a: 1}
     key1: {r: 1, g: 1, b: 1, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
@@ -1065,7 +1065,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   graddientSunsetToNight:
     serializedVersion: 2
-    key0: {r: 1, g: 1, b: 1, a: 1}
+    key0: {r: 0.5471698, g: 0.49727064, b: 0.49727064, a: 1}
     key1: {r: 1, g: 1, b: 1, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
@@ -1093,7 +1093,7 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  globalLight: {fileID: 0}
+  globalLight: {fileID: 1570689919}
 --- !u!4 &672988873
 Transform:
   m_ObjectHideFlags: 0
@@ -2994,7 +2994,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 2ec966d90911a454c9760fa28789a4f8, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2781410738928257789, guid: 9d65cebe869f13049a5b7bd63efc4acb, type: 3}
+      objectReference: {fileID: 2100000, guid: c522ec7c62be0c145bc320ad11705a67, type: 2}
     - target: {fileID: 919132149155446097, guid: 2ec966d90911a454c9760fa28789a4f8, type: 3}
       propertyPath: m_Name
       value: PT_Caesars_Mushroom_01 (1)

@@ -15,7 +15,7 @@ ModelImporter:
       name: PT_Mushrooms_mat
     second: {fileID: 2100000, guid: 113dc0ecbc99fa94ca16546abc92f972, type: 2}
   materials:
-    materialImportMode: 1
+    materialImportMode: 2
     materialName: 0
     materialSearch: 0
     materialLocation: 0
