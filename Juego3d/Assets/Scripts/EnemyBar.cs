@@ -43,6 +43,7 @@ public class EnemyBar : MonoBehaviour
         }
         else {
             enemy.animator.SetTrigger("death");
+            enemy.die = true;
         }
 
         

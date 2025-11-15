@@ -9,11 +9,13 @@ public class HealthBar : MonoBehaviour
     public Slider slider;
     public float maxHealth = 100f;
     public float health;
+    [SerializeField] PlayerController player;
 
     // cooldown
     //Tiempo de espera
     private float lastActionTime;
-    private float cooldownDuration = 2.0f;
+    private float cooldownDuration = 1.5f;
+    bool morir;
 
     // Start is called before the first frame update
     void Start()
@@ -21,6 +23,7 @@ public class HealthBar : MonoBehaviour
         slider = GetComponent<Slider>();
         lastActionTime = Time.time;
         health = maxHealth;
+        morir = true;
     }
 
     // Update is called once per frame
@@ -35,10 +38,19 @@ public class HealthBar : MonoBehaviour
 
     public void takeDamage()
     {
+        
         if (Time.time > lastActionTime + cooldownDuration) {
-            if (health > 0) {
+            
+            if (health > 0)
+            {
                 health -= 10;
                 lastActionTime = Time.time;
+                morir = false;
+            }
+            else if (health <= 0 && morir == false) {
+                player.animator.SetTrigger("death");
+                player.die = true;
+                morir = true;
             }
                
         }

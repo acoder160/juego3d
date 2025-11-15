@@ -13,19 +13,27 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float jumpForce = 8.0f;
     [SerializeField] float gravityScale = 2.0f; // Mayor gravedad = salto más "nítido"
     [SerializeField] EnemyBar health;
+    [SerializeField] HealthBar healthBar;
     public bool enemigoCheck = false;
 
 
     // Variables privadas
     private CharacterController playerController;
-    private Animator animator;
+    public Animator animator;
     private Vector3 moveDirection;
     private float currentSpeed; // Velocidad actual (caminata o carrera)
-    
+
 
     //Tiempo de espera
     private float lastActionTime;
     private float cooldownDuration = 1.0f;
+
+    //Animaciones y logica de la muerte
+    public bool die = false;
+    private bool cooldownDie = false;
+
+    private float lastActionTimeDeath;
+    private float cooldownDeathDuration = 2f;
 
     void Start()
     {
@@ -46,7 +54,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy")) {
+        if (other.CompareTag("Enemy"))
+        {
             enemigoCheck = true;
         }
     }
@@ -61,91 +70,130 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // --- 1. Procesamiento de entrada (WASD) ---
-        // Obtenemos la entrada no como -1 a 1, sino específicamente 0 o 1 (o -1)
-        float verticalInput = 0f;
-        if (Input.GetKey(KeyCode.W)) verticalInput = 1f;
-        if (Input.GetKey(KeyCode.S)) verticalInput = -1f;
-
-        float horizontalInput = 0f;
-        if (Input.GetKey(KeyCode.D)) horizontalInput = 1f;
-        if (Input.GetKey(KeyCode.A)) horizontalInput = -1f;
-
-        // --- 2. Lógica de Correr (Shift) ---
-        bool isSprinting = Input.GetKey(KeyCode.LeftShift);
-        currentSpeed = isSprinting ? runSpeed : walkSpeed; // Seleccionamos la velocidad
-
-        // --- 3. Cálculo de la dirección del movimiento ---
-        // Guardamos 'y' (gravedad/salto) para no perderlo
-        float yStore = moveDirection.y;
-
-        // Giramos al personaje para que mire hacia donde mira la cámara (solo en el eje Y)
-        transform.rotation = Quaternion.Euler(0f, playerCamera.transform.rotation.eulerAngles.y, 0f);
-
-        // Vector de entrada (local)
-        Vector3 inputVector = new Vector3(horizontalInput, 0f, verticalInput);
-
-        // Normalizamos el vector de entrada para que el movimiento diagonal no sea más rápido
-        if (inputVector.magnitude > 1f)
-        {
-            inputVector.Normalize();
-        }
-
-        // Calculamos la dirección del movimiento en relación con la rotación del personaje
-        moveDirection = (transform.forward * inputVector.z) + (transform.right * inputVector.x);
-
-        // Aplicamos la velocidad actual (caminata o carrera)
-        moveDirection = moveDirection * currentSpeed;
-
-        // Devolvemos la gravedad/salto guardado
-        moveDirection.y = yStore;
-
-        // --- 4. Lógica de Salto (Espacio) ---
-        if (playerController.isGrounded)
-        {
-            // "Pegamos" al suelo mientras estamos parados
-            moveDirection.y = -0.1f;
-
-            // Saltamos al presionar Espacio
-            if (Input.GetKeyDown(KeyCode.Space))
+            // --- ESTADO: MORIR / REVIVIR ---
+            if (die)
             {
-                moveDirection.y = jumpForce;
+                // ¿Es el primer frame que está muerto?
+                if (cooldownDie == false)
+                {
+                    // 1. SÍ. Iniciamos el temporizador UNA SOLA VEZ
+                    lastActionTimeDeath = Time.time;
+
+                    // 2. Ponemos la bandera a 'true' para no volver a entrar aquí
+                    cooldownDie = true;
+
+                    ; 
+                }
+
+                // 3. Esta comprobación se hace en cada frame MIENTRAS está muerto
+                if (Time.time > lastActionTimeDeath + cooldownDeathDuration)
+                {
+                    // 4. ¡Tiempo cumplido! Revivimos y nos teletransportamos.
+
+                    // Llama a la animación de revivir
+                    animator.SetTrigger("revive");
+
+                    // Define la posición de reaparición
+                    Vector3 targetPosition = new Vector3(39f, 3.1f, 66.46f);
+
+                    // --- TU LÓGICA DE TELEPORT (¡Esta parte estaba bien!) ---
+                    playerController.enabled = false;
+                    transform.position = targetPosition;
+                    playerController.enabled = true;
+                    // --- FIN DE TELEPORT ---
+
                 
-                animator.SetTrigger("Jump");
+                    die = false;
+                    cooldownDie = false;
+
+                    healthBar.health = healthBar.maxHealth;
+                }
+                return;
             }
-        }
-        // Atackar
-        if (Input.GetMouseButtonDown(0) && (Time.time - lastActionTime) >= cooldownDuration)
-        {
-            // Si entra aquí, el usuario acaba de hacer clic
-            animator.SetTrigger("Ataque");
-            lastActionTime = Time.time;
+            float verticalInput = 0f;
+            if (Input.GetKey(KeyCode.W)) verticalInput = 1f;
+            if (Input.GetKey(KeyCode.S)) verticalInput = -1f;
 
-            if (enemigoCheck == true) {
-                health.takeDamage();
+            float horizontalInput = 0f;
+            if (Input.GetKey(KeyCode.D)) horizontalInput = 1f;
+            if (Input.GetKey(KeyCode.A)) horizontalInput = -1f;
+
+            // --- 2. Lógica de Correr (Shift) ---
+            bool isSprinting = Input.GetKey(KeyCode.LeftShift);
+            currentSpeed = isSprinting ? runSpeed : walkSpeed; // Seleccionamos la velocidad
+
+            // --- 3. Cálculo de la dirección del movimiento ---
+            // Guardamos 'y' (gravedad/salto) para no perderlo
+            float yStore = moveDirection.y;
+
+            // Giramos al personaje para que mire hacia donde mira la cámara (solo en el eje Y)
+            transform.rotation = Quaternion.Euler(0f, playerCamera.transform.rotation.eulerAngles.y, 0f);
+
+            // Vector de entrada (local)
+            Vector3 inputVector = new Vector3(horizontalInput, 0f, verticalInput);
+
+            // Normalizamos el vector de entrada para que el movimiento diagonal no sea más rápido
+            if (inputVector.magnitude > 1f)
+            {
+                inputVector.Normalize();
             }
+
+            // Calculamos la dirección del movimiento en relación con la rotación del personaje
+            moveDirection = (transform.forward * inputVector.z) + (transform.right * inputVector.x);
+
+            // Aplicamos la velocidad actual (caminata o carrera)
+            moveDirection = moveDirection * currentSpeed;
+
+            // Devolvemos la gravedad/salto guardado
+            moveDirection.y = yStore;
+
+            // --- 4. Lógica de Salto (Espacio) ---
+            if (playerController.isGrounded)
+            {
+                // "Pegamos" al suelo mientras estamos parados
+                moveDirection.y = -0.1f;
+
+                // Saltamos al presionar Espacio
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    moveDirection.y = jumpForce;
+
+                    animator.SetTrigger("Jump");
+                }
+            }
+            // Atackar
+            if (Input.GetMouseButtonDown(0) && (Time.time - lastActionTime) >= cooldownDuration)
+            {
+                // Si entra aquí, el usuario acaba de hacer clic
+                animator.SetTrigger("Ataque");
+                lastActionTime = Time.time;
+
+                if (enemigoCheck == true)
+                {
+                    health.takeDamage();
+                }
+            }
+
+            // --- 5. Aplicación de la Gravedad ---
+            // La gravedad se aplica constantemente si el personaje no está en el suelo
+            moveDirection.y += Physics.gravity.y * Time.deltaTime * gravityScale;
+
+            // --- 6. Control del Animator ---
+
+            // inputVector.magnitude es tu "Math.Abs" de la velocidad.
+            // Será 0 si no se presionan botones, y 1 si se presiona cualquiera (W, A, S, D).
+            float animationSpeed = inputVector.magnitude;
+
+            // "speed" - es un parámetro Float en el Animator
+            animator.SetFloat("Speed", animationSpeed);
+
+            // "isSprinting" - es un parámetro Bool en el Animator (tu "trigger")
+            animator.SetBool("isSprinting", isSprinting);
+
+            // (Opcional) Se puede agregar un parámetro para la caída
+            // animator.SetBool("isGrounded", playerController.isGrounded);
+
+            // --- 7. Movimiento del Personaje ---
+            playerController.Move(moveDirection * Time.deltaTime);
         }
-
-        // --- 5. Aplicación de la Gravedad ---
-        // La gravedad se aplica constantemente si el personaje no está en el suelo
-        moveDirection.y += Physics.gravity.y * Time.deltaTime * gravityScale;
-
-        // --- 6. Control del Animator ---
-
-        // inputVector.magnitude es tu "Math.Abs" de la velocidad.
-        // Será 0 si no se presionan botones, y 1 si se presiona cualquiera (W, A, S, D).
-        float animationSpeed = inputVector.magnitude;
-
-        // "speed" - es un parámetro Float en el Animator
-        animator.SetFloat("Speed", animationSpeed);
-
-        // "isSprinting" - es un parámetro Bool en el Animator (tu "trigger")
-        animator.SetBool("isSprinting", isSprinting);
-
-        // (Opcional) Se puede agregar un parámetro para la caída
-        // animator.SetBool("isGrounded", playerController.isGrounded);
-
-        // --- 7. Movimiento del Personaje ---
-        playerController.Move(moveDirection * Time.deltaTime);
     }
-}
