@@ -48,29 +48,39 @@ public class EnemigoScript : MonoBehaviour
         // Al principio de Update()
         if (die)
         {
-            cooldownDie = true;
-            // BUG ARREGLADO: Tu lógica de cooldown estaba mal.
-            if (cooldownDie)
+            // --- BLOQUE DE CONFIGURACIÓN (se ejecuta UNA SOLA VEZ) ---
+            // Comprobamos si ya hemos procesado la muerte.
+            // (Asumimos que 'cooldownDie' empieza en 'false')
+            if (cooldownDie == false)
             {
-                lastActionTimeDeath = Time.time;
-                cooldownDie = false; // <-- CAMBIO: Evita que el timer se reinicie
+                // 1. Marcamos la muerte como "procesada" INMEDIATAMENTE.
+                //    Esto evita que volvamos a entrar en este bloque.
+                cooldownDie = true;
 
-                // <-- AÑADIDO: Detiene al agente de forma segura
+                // 2. Iniciamos el temporizador para la destrucción.
+                lastActionTimeDeath = Time.time;
+
+                // 3. Detenemos al agente de forma segura.
                 if (agent.isOnNavMesh)
                 {
                     agent.isStopped = true;
                     agent.ResetPath(); // Limpia su destino
                 }
+
             }
 
-            // Una vez que pase el tiempo, destruye el objeto
+            // --- COMPROBACIÓN (se ejecuta CADA FRAME después de la configuración) ---
+
+            // Una vez que pase el tiempo, destruye el objeto.
+            // Como 'lastActionTimeDeath' ya no se reinicia, el contador funciona.
             if (Time.time > lastActionTimeDeath + cooldownDeathDuration)
             {
+                healthBar.SetActive (false);
                 Destroy(gameObject);
             }
 
             // <-- CAMBIO CRÍTICO: Sale del Update() si está muerto.
-            //     Esto evita que llame a SetDestination() más abajo.
+            //     Esto evita que el código de "atacar" o "perseguir" se ejecute.
             return;
         }
 
