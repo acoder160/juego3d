@@ -36,7 +36,7 @@ public class TimeManager : MonoBehaviour
 
     public void Update()
     {
-        tempSecond += Time.deltaTime * 30f;
+        tempSecond += Time.deltaTime * 10f;
 
         if (tempSecond >= 1)
         {

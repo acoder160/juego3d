@@ -1,26 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
-// Requerimos automáticamente los componentes para evitar errores
-[RequireComponent(typeof(CharacterController))]
-[RequireComponent(typeof(Animator))]
+
 public class PlayerController : MonoBehaviour
 {
-    [Header("Referencias")]
     [SerializeField] Camera playerCamera; // Arrastra aquí tu cámara FreeLook
 
-    [Header("Configuración de Movimiento")]
     [SerializeField] float walkSpeed = 3.0f;    // Velocidad de caminata
     [SerializeField] float runSpeed = 7.0f;     // Velocidad de carrera
     [SerializeField] float jumpForce = 8.0f;
     [SerializeField] float gravityScale = 2.0f; // Mayor gravedad = salto más "nítido"
+    [SerializeField] EnemyBar health;
+    public bool enemigoCheck = false;
+
 
     // Variables privadas
     private CharacterController playerController;
     private Animator animator;
     private Vector3 moveDirection;
     private float currentSpeed; // Velocidad actual (caminata o carrera)
+    
 
     //Tiempo de espera
     private float lastActionTime;
@@ -41,6 +42,21 @@ public class PlayerController : MonoBehaviour
         Cursor.visible = false;
 
         lastActionTime = -cooldownDuration;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Enemy")) {
+            enemigoCheck = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            enemigoCheck = false;
+        }
     }
 
     void Update()
@@ -105,7 +121,9 @@ public class PlayerController : MonoBehaviour
             animator.SetTrigger("Ataque");
             lastActionTime = Time.time;
 
-            // Aquí pones tu lógica (disparar, interactuar, etc.)
+            if (enemigoCheck == true) {
+                health.takeDamage();
+            }
         }
 
         // --- 5. Aplicación de la Gravedad ---

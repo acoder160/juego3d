@@ -1,95 +1,133 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine;
 
 public class EnemigoScript : MonoBehaviour
 {
-    // --- Variables de Configuración ---
 
-    // Distancia mínima para que el enemigo empiece a perseguir al jugador.
-    public float distanciaDePersecucion = 15.0f;
+    public float lookRadius = 10f;
+    float atackRadius = 2f;
 
-    // Distancia máxima para que el enemigo abandone la persecución y regrese a casa.
-    public float distanciaDeRetorno = 20.0f;
+    Transform target;
+    [SerializeField] GameObject player;
+    [SerializeField] HealthBar health;
+    public GameObject healthBar;
 
-    // Velocidad del enemigo.
-    public float velocidadDeMovimiento = 5.0f;
+    NavMeshAgent agent;
+    public Animator animator;
+    public bool die = false;
 
-    // Referencia al componente de navegación (NavMeshAgent, etc.)
-    // private AgenteDeNavegacion agenteDeNavegacion;
+    //Tiempo de espera
+    private float lastActionTime;
+    private float cooldownDuration = 5.0f;
 
-    // Referencia a la Transformada del Jugador.
-    private Transform jugador;
+    //Tiempo de espera
+    private float lastActionTimeAtaque;
+    private float cooldownAtaqueDuration = 1f;
+    private bool ataque = false;
 
-    // Posición inicial/de "casa" del enemigo.
-    private Vector3 posicionInicial;
 
-    // --- Inicialización (Función 'Start') ---
     void Start()
     {
-        // 1. Obtener el componente de navegación del enemigo.
-        // agenteDeNavegacion = GetComponent<AgenteDeNavegacion>();
-
-        // 2. Encontrar la transformada del jugador (asumiendo que tiene la etiqueta "Player").
-        jugador = GameObject.FindGameObjectWithTag("Player").transform;
-
-        // 3. Guardar la posición inicial del enemigo.
-        posicionInicial = transform.position;
+        target = player.transform;
+        agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+        lastActionTime = Time.time;
+        healthBar.SetActive(false);
+      
     }
 
-    // --- Actualización por Frame (Función 'Update') ---
+    // Update is called once per frame
     void Update()
     {
-        // 1. Calcular la distancia actual entre el enemigo y el jugador.
-        float distanciaAlJugador = Vector3.Distance(transform.position, jugador.position);
-
-        // 2. Aplicar la lógica basada en la distancia.
-
-        // Si la distancia es menor a 15m, ¡PERSEGUIR!
-        if (distanciaAlJugador < distanciaDePersecucion)
-        {
-            PerseguirJugador();
+        if (die) { 
+            
         }
-        // Si la distancia es mayor a 20m Y no estamos ya en la posición inicial, ¡VOLVER A CASA!
-        else if (distanciaAlJugador > distanciaDeRetorno)
+
+     
+        float distance = Vector3.Distance(target.position, transform.position);
+      
+
+
+        // --- ESTADO: ATACAR ---
+        if (distance <= atackRadius && !die)
         {
-            VolverAPosicionInicial();
+            agent.SetDestination(transform.position);
+            FaceTarget();
+
+           
+            animator.SetBool("IsAttacking", true);
+
+           
+            if (ataque == false)
+            {
+                ataque = true;
+                lastActionTimeAtaque = Time.time;
+
+            }
+
+
+            if (Time.time > lastActionTimeAtaque + cooldownAtaqueDuration && ataque == true) { 
+                health.takeDamage(); 
+                lastActionTime = Time.time;
+                ataque = false;
+            }
+           
+
+
+
+            if (Time.time > lastActionTime + cooldownDuration)
+            {
+                
+                lastActionTime = Time.time;
+            }
         }
-        // Si la distancia está entre 15m y 20m, o si ya estamos en casa, ¡NO HACER NADA!
+
+        // --- ESTADO: PERSEGUIR ---
+        else if (distance <= lookRadius)
+        {
+           
+            healthBar.SetActive(true);
+            agent.SetDestination(target.position);
+
+           
+            animator.SetBool("IsAttacking", false);
+           
+        }
+
+        // --- ESTADO: IDLE (INACTIVO) ---
         else
         {
-            // Detener el movimiento (o reproducir animación de 'idle').
-            // agenteDeNavegacion.Stop();
+
+            healthBar.SetActive(false);
+            agent.SetDestination(transform.position);
+            animator.SetBool("IsAttacking", false);
+      
         }
+
+     
+        float animationSpeed = agent.velocity.magnitude;
+   
+        animator.SetFloat("Speed", animationSpeed);
     }
 
-    // --- Funciones Lógicas ---
-
-    // Lógica de Persecución
-    void PerseguirJugador()
+    // Rotate to face the target
+    void FaceTarget()
     {
-        // 1. Configurar la velocidad.
-        // agenteDeNavegacion.velocidad = velocidadDeMovimiento;
-
-        // 2. Establecer el destino al jugador.
-        // agenteDeNavegacion.SetDestino(jugador.position);
-
-        // NOTA: Puedes añadir aquí lógica de ataque si está muy cerca.
+       
+        Vector3 direction = (target.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
-    // Lógica de Retorno
-    void VolverAPosicionInicial()
+  
+
+
+    private void OnDrawGizmosSelected()
     {
-        // 1. Configurar la velocidad.
-        //agenteDeNavegacion.velocidad = velocidadDeMovimiento;
-
-        // 2. Establecer el destino a la posición inicial guardada.
-        //agenteDeNavegacion.SetDestino(posicionInicial);
-
-        // Opcional: Si está muy cerca de la posición inicial, detenerse para evitar temblores.
-        if (Vector3.Distance(transform.position, posicionInicial) < 1.0f)
-        {
-            //agenteDeNavegacion.Stop();
-        }
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, lookRadius);
     }
 }
