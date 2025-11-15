@@ -1,0 +1,5 @@
+W, A, S, D - moverse
+
+Left click - ataque
+
+Left shift - correr
